@@ -116,16 +116,80 @@ private:
 	std::vector<double> values;
 };
 
+class Pct90 : public IStatistics {
+public:
+	Pct90() = default;
+
+    void update(double next) override {
+		auto pos = values.begin();
+		int i = 0;
+		while (pos != values.end() && *pos < next ) {
+			++pos;
+			++i;
+		}
+		values.insert(pos, next);
+	}
+
+    double eval() const override {
+		if (values.empty()) {
+			return NAN;
+		}
+		int size = values.size();
+		int pos90 = floor(size * 90 / 100.0);
+		return values[pos90];
+	}
+
+    const char* name() const override {
+		return "pct90";
+	};
+
+private:
+	std::vector<double> values;
+};
+
+class Pct95 : public IStatistics {
+public:
+	Pct95() = default;
+
+    void update(double next) override {
+		auto pos = values.begin();
+		int i = 0;
+		while (pos != values.end() && *pos < next ) {
+			++pos;
+			++i;
+		}
+		values.insert(pos, next);
+	}
+
+    double eval() const override {
+		if (values.empty()) {
+			return NAN;
+		}
+//		std::sort(values.begin(), values.end());
+		int size = values.size();
+		int pos95 = floor(size * 95 / 100.0);
+		return values[pos95];
+	}
+
+    const char* name() const override {
+		return "pct95";
+	};
+
+private:
+	std::vector<double> values;
+};
 
 int main() {
 
-	const size_t statistics_count = 4;
+	const size_t statistics_count = 6;
 	IStatistics *statistics[statistics_count];
 
 	statistics[0] = new Min{};
 	statistics[1] = new Max{};
 	statistics[2] = new Mean{};
 	statistics[3] = new Std{};
+	statistics[4] = new Pct90{};
+	statistics[5] = new Pct95{};
 
 	double val = 0;
 	while (std::cin >> val) {
